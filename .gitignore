@@ -1,0 +1,19 @@
+.env
+.env*
+node_modules/
+.next/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+
+# 개인 자료 (지원 현황·인수인계·이력서 정리·옛 기획)
+scripts/overrides.local.mjs
+HANDOFF.md
+PLAN.md
+프로젝트-정리.*
+out/
+data/
+mockup.html
+scripts/render_calendar.py
+.claude/
+.mcp.json
