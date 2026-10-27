@@ -47,7 +47,7 @@
 
 ## 구조
 
-![시스템 구조](docs/images/architecture.png)
+![데이터 흐름: 출처 → 수집·거르기 → AI 판정 → 저장 → 화면](docs/images/architecture.png)
 
 다이어그램 원본: `docs/diagrams/*.json` → [archify](https://github.com/tt-a1i/archify)로 만든 HTML(`docs/diagrams/*.html`, 확대·경로 추적 가능)
 
