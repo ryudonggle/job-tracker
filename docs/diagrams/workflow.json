@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "공고 탐색·일정 관리 업무 AX — 단계별 담당",
+    "output": "workflow.html",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    { "id": "rule", "label": "규칙 (자동)" },
+    { "id": "ai", "label": "AI" },
+    { "id": "screen", "label": "화면" },
+    { "id": "human", "label": "사람" }
+  ],
+  "phases": [
+    { "id": "find", "label": "① 찾기", "fromCol": 0, "toCol": 0 },
+    { "id": "filter-phase", "label": "② 거르기", "fromCol": 1, "toCol": 1 },
+    { "id": "judge-phase", "label": "③ 판단", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "schedule", "label": "④ 일정", "fromCol": 4, "toCol": 4 },
+    { "id": "apply-phase", "label": "⑤ 지원", "fromCol": 5, "toCol": 5 }
+  ],
+  "mainPath": ["collect", "filter", "jev", "llm", "calendar", "apply"],
+  "nodes": [
+    { "id": "collect", "lane": "rule", "col": 0, "type": "cloud", "label": "자동 수집", "sublabel": "원티드·점핏·로컬", "tag": "매일 07:00", "width": 140 },
+    { "id": "filter", "lane": "rule", "col": 1, "type": "backend", "label": "규칙 거르기", "sublabel": "경력·마감·중복", "width": 140 },
+    { "id": "title-rule", "lane": "rule", "col": 2, "type": "backend", "label": "제목 학위 규칙", "sublabel": "석사 이상 표기", "width": 140 },
+    { "id": "hide", "lane": "rule", "col": 3, "type": "security", "label": "자동 숨김", "sublabel": "48건", "width": 140 },
+    { "id": "jev", "lane": "ai", "col": 2, "type": "external", "label": "Jev 판정", "sublabel": "적합도·직무·석사·신입", "width": 150 },
+    { "id": "llm", "lane": "ai", "col": 3, "type": "external", "label": "LLM 리포트", "sublabel": "상·중 공고만", "width": 140 },
+    { "id": "calendar", "lane": "screen", "col": 4, "type": "frontend", "label": "마감 달력", "sublabel": "D-day·적합도 색", "tag": "PWA", "width": 140 },
+    { "id": "apply", "lane": "human", "col": 5, "type": "external", "label": "자소서 작성·지원", "sublabel": "상태·메모 기록", "width": 150 }
+  ],
+  "edges": [
+    { "id": "collect-filter", "from": "collect", "to": "filter", "variant": "emphasis" },
+    { "id": "filter-jev", "from": "filter", "to": "jev", "label": "원문", "variant": "emphasis" },
+    { "id": "filter-title", "from": "filter", "to": "title-rule", "label": "제목", "role": "branch" },
+    { "id": "jev-llm", "from": "jev", "to": "llm", "label": "상·중", "variant": "emphasis" },
+    { "id": "jev-hide", "from": "jev", "to": "hide", "label": "0.5 기준", "variant": "security", "role": "error" },
+    { "id": "title-hide", "from": "title-rule", "to": "hide", "variant": "security", "role": "error" },
+    { "id": "llm-calendar", "from": "llm", "to": "calendar", "variant": "emphasis" },
+    { "id": "calendar-apply", "from": "calendar", "to": "apply", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "규칙", "items": ["정해진 조건: 경력·마감·중복·제목 학위 표기"] },
+    { "dot": "emerald", "title": "AI", "items": ["원문을 읽어야 하는 판단만: Jev 4문항 + LLM 리포트"] },
+    { "dot": "rose", "title": "사람", "items": ["리포트를 참고해 자소서 작성 후 지원만"] }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "job-tracker 시스템 구조",
+    "output": "architecture.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "cron", "type": "cloud", "label": "Vercel Cron", "sublabel": "매일 07:00 KST", "pos": [40, 260], "size": [150, 64] },
+    { "id": "api", "type": "backend", "label": "Next.js API", "sublabel": "/api/cron · /api/run", "pos": [300, 260], "size": [170, 64], "tag": "300초 한도" },
+    { "id": "wanted", "type": "external", "label": "원티드 API", "sublabel": "목록 · 상세", "pos": [220, 80], "size": [140, 60] },
+    { "id": "jumpit", "type": "external", "label": "점핏 API", "sublabel": "목록 · 상세", "pos": [410, 80], "size": [140, 60] },
+    { "id": "jev", "type": "external", "label": "TypeSafe Jev", "sublabel": "확률 판정 4문항", "pos": [220, 450], "size": [150, 64] },
+    { "id": "llm", "type": "external", "label": "LLM API", "sublabel": "OpenAI · 상·중만", "pos": [410, 450], "size": [150, 64] },
+    { "id": "db", "type": "database", "label": "Supabase Postgres", "sublabel": "jobs · runs · settings", "pos": [600, 260], "size": [180, 64], "tag": "RLS on" },
+    { "id": "web", "type": "frontend", "label": "PWA 화면", "sublabel": "달력 · 목록 · 상세", "pos": [880, 260], "size": [160, 64], "tag": "쿠키 로그인" },
+    { "id": "user", "type": "external", "label": "나 (폰 · PC)", "sublabel": "상태 · 메모 기록", "pos": [1120, 260], "size": [150, 64] },
+    { "id": "importer", "type": "backend", "label": "import_local.mjs", "sublabel": "로컬 → DB", "pos": [610, 450], "size": [160, 64] },
+    { "id": "local", "type": "external", "label": "로컬 공고 정리본", "sublabel": "applications/*.md", "pos": [880, 450], "size": [160, 64] }
+  ],
+  "connections": [
+    { "id": "cron-call", "from": "cron", "to": "api", "label": "CRON_SECRET", "variant": "security" },
+    { "id": "collect-wanted", "from": "api", "to": "wanted", "label": "수집", "fromSide": "top", "toSide": "bottom" },
+    { "id": "collect-jumpit", "from": "api", "to": "jumpit", "label": "수집", "fromSide": "top", "toSide": "bottom" },
+    { "id": "judge", "from": "api", "to": "jev", "label": "판정", "fromSide": "bottom", "toSide": "top" },
+    { "id": "report", "from": "api", "to": "llm", "label": "리포트", "fromSide": "bottom", "toSide": "top" },
+    { "id": "store", "from": "api", "to": "db", "label": "upsert", "variant": "emphasis" },
+    { "id": "read", "from": "db", "to": "web", "label": "SSR 조회" },
+    { "id": "use", "from": "web", "to": "user", "label": "PWA" },
+    { "id": "local-read", "from": "local", "to": "importer", "label": "md 파싱" },
+    { "id": "local-load", "from": "importer", "to": "db", "label": "74건", "fromSide": "top", "toSide": "bottom", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "수집 · 처리", "items": ["Cron이 매일 깨우고 5일 주기일 때만 수집", "수집 170초 마감, 남은 시간에 4개씩 처리"] },
+    { "dot": "emerald", "title": "AI 판정", "items": ["Jev: 적합도 · 데이터 직무 · 석사 필수 · 신입", "데이터 직무 아님 · 석사 필수는 숨김, 상·중만 리포트"] },
+    { "dot": "rose", "title": "접근", "items": ["쿠키 로그인 (관리자 · 보기 전용 · 둘러보기)", "전 테이블 RLS, 서버 직접 연결로만 접근"] }
+  ]
+}
